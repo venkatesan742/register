@@ -15,20 +15,9 @@ admin_detials = Jinja2Templates(directory="template1")
 book = Jinja2Templates(directory="template1")
 
 
-uri = "mongodb+srv://demo:Demo_123@cluster0.6gozg1a.mongodb.net/?retryWrites=true&w=majority"
+uri = "MONGO DB URL"
 client = MongoClient(uri)
 db = client.tourism
-
-
-class User(BaseModel):
-    user_name: str
-    u_password: str
-
-class Detail(BaseModel):
-    place: str
-    da_te: str
-    days: int
-    ph_no: int
 
 @app.get("/loginPage", response_class=HTMLResponse)#http://127.0.0.1:8000/loginPage/
 def show_login_page(request: Request):
@@ -54,15 +43,6 @@ def admin_page(request: Request):
 def admin_page(request: Request):
     return admin_detials.TemplateResponse("admin_details.html", context={"request": request})
 
-@app.post("/u_details", response_model=List[Detail])
-def user_detail(detail: Detail,da_te = Form(),place = Form(),ph_no= Form(),days = Form()):
-    detail = jsonable_encoder(detail)
-    object_id = db["detail"].insert_one({"da_te": da_te})
-    object_id = db["detail"].insert_one({"place": place})
-    object_id = db["detail"].insert_one({"ph_no": ph_no})
-    object_id = db["detail"].insert_one({"days": days})
-    details = list(db["detail"].find(limit=100))
-    return details
 
 @app.post('/greet')#http://127.0.0.1:8000/greet/
 def check_user(request: Request,username: str = Form(), upassword: str = Form()):
@@ -74,6 +54,11 @@ def check_user(request: Request,username: str = Form(), upassword: str = Form())
             return admin_detials.TemplateResponse("admin_details.html", context={"request": request})
     else:
         return "Unsuccessful sign_in"
+
+class User(BaseModel):
+    user_name: str
+    u_password: str
+
 
 @app.post("/processLogin")#http://127.0.0.1:8000/processLogin/
 def check_user(request: Request, username: str = Form(), upassword: str = Form()):
@@ -94,10 +79,6 @@ class Information(BaseModel):
     phone: int
     package: int
 
-@app.get("/findAll",response_model=List[Information])#http://127.0.0.1:8000/findAll/
-def list_users():
-    informations = list(db["informations"].find(limit=100))
-    return informations
 
 @app.post("/book")#http://127.0.0.1:8000/book/
 def book_users(response:Request,uname: str=Form(),udate: str=Form(),udays: int=Form(),
@@ -105,8 +86,6 @@ places: str=Form(),phone: int=Form(),package: int=Form()):
     information = {"uname":uname,"udate":udate,"udays":udays,"places":places,"phone":phone,"package":package}
     odject_id = db["informations"].insert_one(information)
     return "Booked Successfully"
-
-
 
 @app.put("/update")#http://127.0.0.1:8000/update/
 def update_users(phone: int, information: Information):
@@ -138,3 +117,19 @@ def create_register(response:Request, name: str=Form(), email: str=Form(), da_te
     object_id = db["regsiter"].insert_one(tony)
     return "Registered Successfully"
     #home.TemplateResponse("home.html", context={"response": Request})
+
+# class Detail(BaseModel):
+#     place: str
+#     da_te: str
+#     days: int
+#     ph_no: int
+
+# @app.post("/u_details", response_model=List[Detail])
+# def user_detail(detail: Detail,da_te = Form(),place = Form(),ph_no= Form(),days = Form()):
+#     detail = jsonable_encoder(detail)
+#     object_id = db["detail"].insert_one({"da_te": da_te})
+#     object_id = db["detail"].insert_one({"place": place})
+#     object_id = db["detail"].insert_one({"ph_no": ph_no})
+#     object_id = db["detail"].insert_one({"days": days})
+#     details = list(db["detail"].find(limit=100))
+#     return details
